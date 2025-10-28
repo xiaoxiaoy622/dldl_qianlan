@@ -487,12 +487,19 @@
             
             <!-- 抓包请求输入 -->
             <div class="section">
-                <h2>抓包请求输入</h2>
+                <h2>抓包请求输入 <span style="color: var(--danger-color); font-size: 0.8em;">⚠️ 安全提示</span></h2>
                 <div class="form-group">
                     <label for="captureInput">粘贴抓包请求 (支持GET/POST请求):</label>
-                    <textarea id="captureInput" class="form-control" rows="6" placeholder="请在此处粘贴抓包获取的完整URL或请求内容..."></textarea>
+                    <textarea id="captureInput" class="form-control" rows="6" placeholder="请在此处粘贴抓包获取的完整URL或请求内容..." 
+                              oninput="clearSensitiveData()"></textarea>
+                    <small style="color: var(--warning-color); margin-top: 5px; display: block;">
+                        ⚠️ 安全提示：此输入框内容仅用于临时解析，不会永久保存。建议使用后及时清空。
+                    </small>
                 </div>
-                <button class="btn btn-primary" onclick="parseRequest()">解析请求</button>
+                <div class="flex-row">
+                    <button class="btn btn-primary" onclick="parseRequest()">解析请求</button>
+                    <button class="btn btn-warning" onclick="clearCaptureInput()">清空输入</button>
+                </div>
             </div>
             
             <!-- 生成结果 -->
