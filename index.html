@@ -2,132 +2,218 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#3498db">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>斗罗大陆H5游戏链接生成器 - Web版</title>
     <style>
+        /* 重置样式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* 基础样式 */
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #2c3e50;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #2c3e50;
+            --text-dark: #34495e;
+            --text-light: #ecf0f1;
+            --border-radius: 12px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.1);
+            --shadow-hover: 0 12px 48px rgba(0,0,0,0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         body {
-            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 16px;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
+        /* 容器样式 */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        /* 头部样式 */
+        .header {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: clamp(20px, 5vw, 40px);
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
         
-        .header {
-            background: linear-gradient(135deg, #2c3e50, #3498db);
-            color: white;
-            padding: 30px;
-            text-align: center;
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
         
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
         
         .header .subtitle {
-            font-size: 1.2em;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
             opacity: 0.9;
+            margin-bottom: 8px;
         }
         
+        .header .author {
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        /* 内容区域 */
         .content {
-            padding: 30px;
+            padding: clamp(20px, 3vw, 30px);
         }
         
+        /* 区块样式 */
         .section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border-left: 5px solid #3498db;
+            background: var(--light-bg);
+            border-radius: var(--border-radius);
+            padding: clamp(20px, 3vw, 25px);
+            margin-bottom: clamp(16px, 3vw, 25px);
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition);
+        }
+        
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
         
         .section h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 1.5em;
+            color: var(--secondary-color);
+            margin-bottom: clamp(16px, 3vw, 20px);
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
             border-bottom: 2px solid #eaeaea;
-            padding-bottom: 10px;
+            padding-bottom: clamp(8px, 2vw, 10px);
+            font-weight: 600;
         }
         
+        /* 表单样式 */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: clamp(16px, 3vw, 20px);
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #34495e;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: clamp(0.9rem, 2vw, 1rem);
         }
         
         .form-control {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
+            padding: clamp(10px, 2vw, 12px);
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+            font-size: clamp(14px, 2vw, 16px);
+            transition: var(--transition);
+            background: white;
+            font-family: inherit;
         }
         
         .form-control:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            transform: scale(1.02);
         }
         
+        /* 按钮样式 */
         .btn {
-            padding: 12px 25px;
+            padding: clamp(10px, 2vw, 12px) clamp(20px, 3vw, 25px);
             border: none;
             border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: clamp(14px, 2vw, 16px);
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            transition: var(--transition);
+            margin-right: clamp(8px, 2vw, 10px);
+            margin-bottom: clamp(8px, 2vw, 10px);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             color: white;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
         }
         
         .btn-success {
-            background: linear-gradient(135deg, #27ae60, #229954);
+            background: linear-gradient(135deg, var(--success-color), #229954);
             color: white;
         }
         
         .btn-warning {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
+            background: linear-gradient(135deg, var(--warning-color), #e67e22);
             color: white;
         }
         
         .btn-danger {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
             color: white;
         }
         
+        /* 状态指示器 */
         .status-indicator {
             display: inline-block;
             width: 12px;
@@ -137,100 +223,192 @@
         }
         
         .status-offline {
-            background: #e74c3c;
+            background: var(--danger-color);
         }
         
         .status-online {
-            background: #27ae60;
+            background: var(--success-color);
             animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
         }
         
+        /* 结果区域 */
         .result-area {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
+            background: var(--dark-bg);
+            color: var(--text-light);
+            padding: clamp(12px, 2vw, 15px);
             border-radius: 8px;
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', 'SF Mono', Monaco, monospace;
             min-height: 100px;
             word-break: break-all;
+            font-size: clamp(12px, 2vw, 14px);
+            line-height: 1.4;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
+        /* 日志区域 */
         .log-area {
             background: #1a1a1a;
             color: #00ff00;
-            padding: 15px;
+            padding: clamp(12px, 2vw, 15px);
             border-radius: 8px;
-            font-family: 'Courier New', monospace;
+            font-family: 'Courier New', 'SF Mono', Monaco, monospace;
             height: 200px;
             overflow-y: auto;
-            font-size: 12px;
+            font-size: clamp(11px, 2vw, 12px);
+            border: 1px solid #333;
         }
         
+        /* 布局样式 */
         .flex-row {
             display: flex;
-            gap: 15px;
+            gap: clamp(12px, 2vw, 15px);
             align-items: center;
+            flex-wrap: wrap;
         }
         
         .flex-1 {
             flex: 1;
+            min-width: 200px;
         }
         
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: clamp(16px, 3vw, 20px);
         }
         
+        /* 响应式设计 */
         @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            
             .grid-2 {
                 grid-template-columns: 1fr;
+                gap: 16px;
             }
             
             .container {
-                margin: 10px;
+                margin: 0;
+                border-radius: 12px;
+            }
+            
+            .flex-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+            
+            .form-control {
+                font-size: 16px; /* 防止iOS缩放 */
             }
         }
         
-        .tab-container {
-            margin-top: 20px;
+        @media (max-width: 480px) {
+            .content {
+                padding: 16px;
+            }
+            
+            .section {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            
+            .header {
+                padding: 24px 16px;
+            }
         }
         
-        .tab-buttons {
-            display: flex;
-            border-bottom: 2px solid #eaeaea;
+        /* 触摸设备优化 */
+        @media (hover: none) and (pointer: coarse) {
+            .btn:hover {
+                transform: none;
+            }
+            
+            .section:hover {
+                transform: none;
+            }
+            
+            .btn:active {
+                transform: scale(0.95);
+                transition: transform 0.1s;
+            }
+            
+            .form-control {
+                font-size: 16px; /* 防止iOS缩放 */
+                -webkit-appearance: none;
+                border-radius: 8px;
+            }
+            
+            select.form-control {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 12px center;
+                background-repeat: no-repeat;
+                background-size: 16px;
+                padding-right: 40px;
+            }
         }
         
-        .tab-button {
-            padding: 12px 25px;
-            background: #f8f9fa;
-            border: none;
-            cursor: pointer;
-            border-radius: 8px 8px 0 0;
-            margin-right: 5px;
-            transition: all 0.3s;
+        /* 防止iOS输入框缩放 */
+        @supports (-webkit-touch-callout: none) {
+            .form-control {
+                font-size: 16px;
+            }
         }
         
-        .tab-button.active {
-            background: #3498db;
-            color: white;
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
         
-        .tab-content {
-            display: none;
-            padding: 20px;
-            background: white;
-            border-radius: 0 0 8px 8px;
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
         }
         
-        .tab-content.active {
-            display: block;
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        .log-area::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+        
+        .log-area::-webkit-scrollbar-thumb {
+            background: #555;
+        }
+        
+        .log-area::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+        
+        /* 选择文本样式 */
+        ::selection {
+            background: rgba(52, 152, 219, 0.3);
+            color: inherit;
+        }
+        
+        /* 焦点可见性 */
+        .btn:focus-visible,
+        .form-control:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -239,6 +417,7 @@
         <div class="header">
             <h1>斗罗大陆H5游戏链接生成器</h1>
             <div class="subtitle">Web版</div>
+            <div class="author">author：浅蓝色的月</div>
         </div>
         
         <div class="content">
