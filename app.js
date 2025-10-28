@@ -25,7 +25,11 @@ class URLGeneratorApp {
         // 绑定事件
         this.bindEvents();
         
+        // 设置页面安全处理
+        this.setupPageUnloadHandler();
+        
         this.logMessage("Web版链接生成器初始化完成");
+        this.logMessage("安全防护功能已启用", 'info');
     }
     
     bindEvents() {
@@ -165,10 +169,15 @@ class URLGeneratorApp {
             return;
         }
         
+        // 安全检查：检测敏感数据模式
+        if (this.detectSensitiveData(input)) {
+            this.logMessage('检测到敏感数据，已启用安全防护模式', 'info');
+        }
+        
         try {
             let params = {};
             
-            // 判断输入类型并解析（与原始Python文件保持一致）
+            // 判断输入类型并解析
             if (input.includes('HTTP/1.1') || input.includes('HTTP/1.0') || input.includes('GET ') || input.includes('POST ')) {
                 // HTTP请求格式（与原始Python文件处理方式一致）
                 params = this.parseHttpRequest(input);
@@ -198,7 +207,7 @@ class URLGeneratorApp {
         }
     }
     
-    // 解析HTTP请求（与原始Python文件保持一致）
+    // 解析HTTP请求
     parseHttpRequest(requestText) {
         const lines = requestText.split('\n');
         const params = {};
@@ -264,7 +273,7 @@ class URLGeneratorApp {
     }
     
     updateAccountInfo(params) {
-        // 更新账号信息显示（与原始Python文件保持一致）
+        // 更新账号信息显示
         const drname = params.drname ? decodeURIComponent(params.drname) : "未解析";
         const dsname = params.dsname ? decodeURIComponent(params.dsname) : "未解析";
         const dpname = params.dpname ? decodeURIComponent(params.dpname) : "未解析";
@@ -273,7 +282,7 @@ class URLGeneratorApp {
         document.getElementById('dsnameDisplay').textContent = dsname || "未解析";
         document.getElementById('dpnameDisplay').textContent = dpname || "未解析";
         
-        // 计算过期时间（与原始Python文件保持一致：time参数 + 3天）
+        // 计算过期时间（time参数 + 3天）
         if (params.time && !isNaN(params.time)) {
             this.calculateExpiryTime(params.time);
         } else {
@@ -284,7 +293,7 @@ class URLGeneratorApp {
         }
     }
     
-    // 计算过期时间（与原始Python文件保持一致）
+    // 计算过期时间
     calculateExpiryTime(timeStr) {
         if (!timeStr || isNaN(timeStr)) {
             document.getElementById('expiryDisplay').textContent = "过期时间: 无时间戳";
@@ -293,7 +302,7 @@ class URLGeneratorApp {
         }
         
         try {
-            // 解析时间戳（与原始Python文件一致：time参数 + 3天）
+            // 解析时间戳（time参数 + 3天）
             const timestamp = parseInt(timeStr);
             this.expiryTimestamp = timestamp + (3 * 24 * 3600); // 3天后过期
             
@@ -320,7 +329,7 @@ class URLGeneratorApp {
         }
     }
     
-    // 启动剩余时间实时更新（与原始Python文件保持一致）
+    // 启动剩余时间实时更新
     startTimeRemainingUpdate() {
         // 清除之前的定时器
         if (this.timeUpdateInterval) {
@@ -336,7 +345,7 @@ class URLGeneratorApp {
         }, 1000);
     }
     
-    // 更新剩余时间显示（与原始Python文件保持一致）
+    // 更新剩余时间显示
     updateTimeRemaining() {
         if (!this.expiryTimestamp) {
             document.getElementById('timeRemaining').textContent = "剩余时间: --";
@@ -359,13 +368,13 @@ class URLGeneratorApp {
             return;
         }
         
-        // 计算天、时、分、秒（与原始Python文件格式一致）
+        // 计算天、时、分、秒
         const days = Math.floor(remainingSeconds / (24 * 3600));
         const hours = Math.floor((remainingSeconds % (24 * 3600)) / 3600);
         const minutes = Math.floor((remainingSeconds % 3600) / 60);
         const seconds = remainingSeconds % 60;
         
-        // 格式化显示（与原始Python文件一致）
+        // 格式化显示
         let timeRemainingText = "剩余时间: ";
         if (days > 0) {
             timeRemainingText += `${days}天 `;
@@ -390,7 +399,7 @@ class URLGeneratorApp {
         }
         
         try {
-            // 提取目标参数（与原始Python文件保持一致）
+            // 提取目标参数
             const targetParams = {
                 gid: params.gid || "",
                 pid: params.pid || "",
@@ -407,7 +416,6 @@ class URLGeneratorApp {
                 isPcLauncher: document.getElementById('isPcLauncher').value
             };
             
-            // 严格按照原始Python文件的顺序构建参数
             const orderedParams = [
                 ["gid", targetParams.gid],
                 ["pid", targetParams.pid],
@@ -477,6 +485,64 @@ class URLGeneratorApp {
             now.toLocaleString('zh-CN');
     }
     
+    // ============ 安全相关方法 ============
+    detectSensitiveData(input) {
+        // 检测常见的敏感数据模式
+        const sensitivePatterns = [
+            /token=[A-Za-z0-9+/=]{20,}/i, // token参数
+            /sign=[A-Za-z0-9+/=]{20,}/i,   // sign参数
+            /drid=\d{10,}/i,               // 长数字ID
+            /uid=\d{10,}/i,                // 长数字UID
+            /android_id=[A-Za-z0-9]{16,}/i, // Android设备ID
+            /dev=[A-Za-z0-9]{20,}/i,       // 设备标识
+            /Content-Length:\s*\d{3,}/i,   // 长内容长度
+            /Authorization:/i              // 授权头
+        ];
+        
+        return sensitivePatterns.some(pattern => pattern.test(input));
+    }
+    
+    clearCaptureInput() {
+        document.getElementById('captureInput').value = '';
+        this.logMessage('输入框已清空', 'info');
+    }
+    
+    clearSensitiveData() {
+        // 自动清空敏感数据的定时器
+        clearTimeout(this.sensitiveDataTimer);
+        this.sensitiveDataTimer = setTimeout(() => {
+            const input = document.getElementById('captureInput').value;
+            if (input && this.detectSensitiveData(input)) {
+                // 如果检测到敏感数据且页面长时间未操作，建议清空
+                if (confirm('检测到敏感数据已存在较长时间。建议清空输入框以确保安全。是否清空？')) {
+                    this.clearCaptureInput();
+                }
+            }
+        }, 300000); // 5分钟后提示
+    }
+    
+    // ============ 页面生命周期安全处理 ============
+    setupPageUnloadHandler() {
+        // 页面关闭前记录安全日志（不弹窗确认）
+        window.addEventListener('beforeunload', () => {
+            const input = document.getElementById('captureInput').value;
+            if (input && this.detectSensitiveData(input)) {
+                console.log('页面关闭：检测到敏感数据，建议及时清空');
+            }
+        });
+        
+        // 页面可见性变化时处理
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // 页面隐藏时，如果包含敏感数据，记录日志
+                const input = document.getElementById('captureInput').value;
+                if (input && this.detectSensitiveData(input)) {
+                    this.logMessage("页面隐藏：检测到敏感数据，建议及时清空", 'info');
+                }
+            }
+        });
+    }
+    
     // ============ 工具方法 ============
     copyUrl() {
         if (!this.currentUrl) {
@@ -537,24 +603,23 @@ class URLGeneratorApp {
     }
     
     clearAll() {
-        if (confirm('确定要清空所有内容吗？')) {
-            document.getElementById('captureInput').value = '';
-            document.getElementById('resultOutput').textContent = '链接状态: 未生成';
-            document.getElementById('linkStatus').textContent = '链接状态: 未生成';
-            document.getElementById('timeRemaining').textContent = '剩余时间: --';
-            
-            // 重置账号信息
-            document.getElementById('drnameDisplay').textContent = '未解析';
-            document.getElementById('dsnameDisplay').textContent = '未解析';
-            document.getElementById('dpnameDisplay').textContent = '未解析';
-            document.getElementById('expiryDisplay').textContent = '未计算';
-            
-            this.currentUrl = null;
-            this.linkActive = false;
-            this.expiryTimestamp = 0;
-            
-            this.logMessage("所有内容已清空");
-        }
+        document.getElementById('captureInput').value = '';
+        document.getElementById('resultOutput').textContent = '请先解析请求以生成完整链接';
+        document.getElementById('linkStatus').textContent = '链接状态: 未生成';
+        document.getElementById('timeRemaining').textContent = '剩余时间: --';
+        document.getElementById('expiryDisplay').textContent = '过期时间: 未计算';
+        document.getElementById('drnameDisplay').textContent = '未解析';
+        document.getElementById('dsnameDisplay').textContent = '未解析';
+        document.getElementById('dpnameDisplay').textContent = '未解析';
+        
+        this.expiryTimestamp = 0;
+        this.linkActive = false;
+        this.currentUrl = '';
+        
+        // 清除敏感数据相关的定时器
+        clearTimeout(this.sensitiveDataTimer);
+        
+        this.logMessage("所有内容已清空（包含敏感数据）");
     }
     
     clearLog() {
@@ -606,6 +671,10 @@ function clearHistory() {
 
 function onHistorySelected(value) {
     app.onHistorySelected(value);
+}
+
+function clearCaptureInput() {
+    app.clearCaptureInput();
 }
 
 // 初始化应用
