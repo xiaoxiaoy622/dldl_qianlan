@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>斗罗大陆H5游戏链接生成器 - Web版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-offline {
+            background: #e74c3c;
+        }
+        
+        .status-online {
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .result-area {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            word-break: break-all;
+        }
+        
+        .log-area {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        
+        .flex-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .flex-1 {
+            flex: 1;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                margin: 10px;
+            }
+        }
+        
+        .tab-container {
+            margin-top: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #eaeaea;
+        }
+        
+        .tab-button {
+            padding: 12px 25px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>斗罗大陆H5游戏链接生成器</h1>
+            <div class="subtitle">Web版</div>
+        </div>
+        
+        <div class="content">
+            <!-- 基础URL设置 -->
+            <div class="section">
+                <h2>基础URL设置</h2>
+                <div class="form-group">
+                    <label for="baseUrl">基础URL (包含协议、域名和路径):</label>
+                    <input type="text" id="baseUrl" class="form-control" placeholder="https://xinwan.xinwanwl.com/login.php?" value="https://xinwan.xinwanwl.com/login.php?">
+                    <small style="color: #666; margin-top: 5px; display: block;">示例: https://xinwan.xinwanwl.com/login.php?</small>
+                </div>
+                
+                <div class="flex-row">
+                    <select id="historySelect" class="form-control" style="flex: 1;">
+                        <option value="">选择历史记录</option>
+                    </select>
+                    <button class="btn btn-warning" onclick="clearHistory()">清除历史</button>
+                </div>
+            </div>
+            
+            <!-- 固定参数设置 -->
+            <div class="section">
+                <h2>固定参数设置</h2>
+                <div class="grid-2">
+                    <div>
+                        <div class="form-group">
+                            <label for="appVer">appVer (应用版本号):</label>
+                            <input type="text" id="appVer" class="form-control" placeholder="请输入版本号">
+                        </div>
+                        <div class="form-group">
+                            <label for="platCode">platCode (平台代码): *</label>
+                            <input type="text" id="platCode" class="form-control" value="37wan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="IMEI">IMEI (设备标识):</label>
+                            <input type="text" id="IMEI" class="form-control" placeholder="请输入设备标识">
+                        </div>
+                        <div class="form-group">
+                            <label for="isPcLauncher">isPcLauncher (PC启动器): *</label>
+                            <input type="text" id="isPcLauncher" class="form-control" value="true" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="section" style="background: #e8f4fd; margin: 0;">
+                            <h3>当前账号信息</h3>
+                            <div class="form-group">
+                                <label>游戏角色:</label>
+                                <div class="form-control" style="background: white;" id="drnameDisplay">未解析</div>
+                            </div>
+                            <div class="form-group">
+                                <label>区服:</label>
+                                <div class="form-control" style="background: white;" id="dsnameDisplay">未解析</div>
+                            </div>
+                            <div class="form-group">
+                                <label>所属宗门:</label>
+                                <div class="form-control" style="background: white;" id="dpnameDisplay">未解析</div>
+                            </div>
+                            <div class="form-group">
+                                <label>过期时间:</label>
+                                <div class="form-control" style="background: white;" id="expiryDisplay">未计算</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 抓包请求输入 -->
+            <div class="section">
+                <h2>抓包请求输入</h2>
+                <div class="form-group">
+                    <label for="captureInput">粘贴抓包请求 (支持GET/POST请求):</label>
+                    <textarea id="captureInput" class="form-control" rows="6" placeholder="请在此处粘贴抓包获取的完整URL或请求内容..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="parseRequest()">解析请求</button>
+            </div>
+            
+            <!-- 生成结果 -->
+            <div class="section">
+                <h2>生成结果</h2>
+                <div class="form-group">
+                    <label>完整游戏URL:</label>
+                    <div class="result-area" id="resultOutput">
+                        请先解析请求以生成完整链接
+                    </div>
+                </div>
+                
+                <div class="flex-row">
+                    <div class="flex-1">
+                        <div id="linkStatus">链接状态: 未生成</div>
+                        <div id="timeRemaining">剩余时间: --</div>
+                    </div>
+                    <div>
+                        <button class="btn btn-success" onclick="copyUrl()">复制链接</button>
+                        <button class="btn btn-primary" onclick="openUrl()">启动</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 系统日志 -->
+            <div class="section">
+                <h2>系统日志</h2>
+                <div class="log-area" id="logOutput">
+                    [系统] Web版链接生成器已启动
+                    [系统] 当前时间: <span id="currentTime"></span>
+                </div>
+                <button class="btn btn-warning" onclick="clearLog()" style="margin-top: 10px;">清空日志</button>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="section" style="text-align: center; background: #f0f8ff;">
+                <button class="btn btn-primary" onclick="saveConfig()">保存配置</button>
+                <button class="btn btn-warning" onclick="clearAll()">清空内容</button>
+                <button class="btn btn-danger" onclick="resetApp()">重置应用</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
